@@ -222,27 +222,40 @@ public class TestResult implements ITestResult {
 
   @Override
   public String toString() {
-    List<String> output = Reporter.getOutput(this);
-    String result = Objects.toStringHelper(getClass())
-        .omitNulls()
-        .omitEmptyStrings()
-        .add("name", getName())
-        .add("status", toString(m_status))
-        .add("method", m_method)
-        .add("output", output != null && output.size() > 0 ? output.get(0) : null)
-        .toString();
-
-    return result;
+    return toString(null);
   }
 
-  private String toString(int status) {
+  protected String toStringSafe() {
+    return toString("UNKNOWN");
+  }
+
+  private String toString(String defaultStatus) {
+      List<String> output = Reporter.getOutput(this);
+      String result = Objects.toStringHelper(getClass())
+      .omitNulls()
+      .omitEmptyStrings()
+      .add("name", getName())
+      .add("status", toString(m_status, defaultStatus))
+      .add("method", m_method)
+      .add("output", output != null && output.size() > 0 ? output.get(0) : null)
+      .toString();
+
+      return result;
+  }
+
+  private String toString(int status, String defaultResult) {
     switch(status) {
       case SUCCESS: return "SUCCESS";
       case FAILURE: return "FAILURE";
       case SKIP: return "SKIP";
       case SUCCESS_PERCENTAGE_FAILURE: return "SUCCESS WITHIN PERCENTAGE";
       case STARTED: return "STARTED";
-      default: throw new RuntimeException();
+      default:
+        if (defaultResult == null) {
+          throw new RuntimeException();
+        } else {
+          return defaultResult;
+        }
     }
   }
 
@@ -262,7 +275,7 @@ public class TestResult implements ITestResult {
 
   @Override
   public void setParameters(Object[] parameters) {
-    m_parameters = parameters;
+    m_parameters = ParameterReference.convert(parameters);
   }
 
   @Override

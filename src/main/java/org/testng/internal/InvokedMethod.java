@@ -30,7 +30,7 @@ public class InvokedMethod implements Serializable, IInvokedMethod {
                        ITestResult testResult) {
     m_instance = instance;
     m_testMethod = method;
-    m_parameters = parameters;
+    m_parameters = ParameterReference.convert(parameters);
     m_isTest = isTest;
     m_isConfigurationMethod = isConfiguration;
     m_date = date;
