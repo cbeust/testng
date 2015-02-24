@@ -18,11 +18,7 @@ import org.testng.xml.XmlTest;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Utility class for different class manipulations.
@@ -67,18 +63,24 @@ public final class ClassHelper {
   }
 
   /**
-   * Tries to load the specified class using the context ClassLoader or if none,
-   * than from the default ClassLoader. This method differs from the standard
+   * Tries to load the specified class using supplied classloaders first,
+   * than from the default ClassLoader. and then from global class loaders
+   * This method differs from the standard
    * class loading methods in that it does not throw an exception if the class
    * is not found but returns null instead.
    *
    * @param className the class name to be loaded.
    *
-   * @return the class or null if the class is not found.
+   * @return the class or null if the class is not found.ad
    */
-  public static Class<?> forName(final String className) {
-    Vector<ClassLoader> allClassLoaders = new Vector<ClassLoader>();
+  public static Class<?> forName(final String className, List<ClassLoader> classLoaders) {
+    List<ClassLoader> allClassLoaders = new ArrayList<ClassLoader>();
+
     ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+
+    if(classLoaders != null && !classLoaders.isEmpty()) {
+        allClassLoaders.addAll(classLoaders);
+    }
     if (contextClassLoader != null) {
       allClassLoaders.add(contextClassLoader);
     }
@@ -193,7 +195,7 @@ public final class ClassHelper {
       try {
           //try to get runner for JUnit 4 first
           Class.forName("org.junit.Test");
-          IJUnitTestRunner tr = (IJUnitTestRunner) ClassHelper.forName(JUNIT_4_TESTRUNNER).newInstance();
+          IJUnitTestRunner tr = (IJUnitTestRunner) ClassHelper.forName(JUNIT_4_TESTRUNNER, null).newInstance();
           tr.setTestResultNotifier(runner);
           return tr;
       } catch (Throwable t) {
@@ -201,7 +203,7 @@ public final class ClassHelper {
           try {
               //fallback to JUnit 3
               Class.forName("junit.framework.Test");
-              IJUnitTestRunner tr = (IJUnitTestRunner) ClassHelper.forName(JUNIT_TESTRUNNER).newInstance();
+              IJUnitTestRunner tr = (IJUnitTestRunner) ClassHelper.forName(JUNIT_TESTRUNNER, null).newInstance();
               tr.setTestResultNotifier(runner);
 
               return tr;
@@ -513,7 +515,7 @@ public final class ClassHelper {
         file = file.substring("class ".length());
       }
 
-      result = ClassHelper.forName(file);
+      result = ClassHelper.forName(file, null);
 
       if (null == result) {
         throw new TestNGException("Cannot load class from file: " + file);
@@ -561,7 +563,7 @@ public final class ClassHelper {
         className += "." + segments[i];
       }
 
-      result = ClassHelper.forName(className);
+      result = ClassHelper.forName(className, null);
 
       if (null != result) {
         return result;
@@ -585,7 +587,7 @@ public final class ClassHelper {
         className = segments[i] + "." + className;
       }
 
-      result = ClassHelper.forName(className);
+      result = ClassHelper.forName(className, null);
 
       if (null != result) {
         m_lastGoodRootIndex = i;

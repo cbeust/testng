@@ -54,7 +54,7 @@ abstract public class XMLParser<T> implements IFileParser<T> {
 
     StringBuffer errorLog= new StringBuffer();
     try {
-      Class factoryClass= ClassHelper.forName("com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
+      Class factoryClass= ClassHelper.forName("com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl", null);
       spf = (SAXParserFactory) factoryClass.newInstance();
     }
     catch(Exception ex) {
@@ -64,7 +64,7 @@ abstract public class XMLParser<T> implements IFileParser<T> {
     if(null == spf) {
       // If running with JDK 1.4
       try {
-        Class factoryClass = ClassHelper.forName("org.apache.crimson.jaxp.SAXParserFactoryImpl");
+        Class factoryClass = ClassHelper.forName("org.apache.crimson.jaxp.SAXParserFactoryImpl", null);
         spf = (SAXParserFactory) factoryClass.newInstance();
       }
       catch(Exception ex) {

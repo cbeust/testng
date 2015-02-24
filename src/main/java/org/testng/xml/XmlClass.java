@@ -75,7 +75,7 @@ public class XmlClass implements Serializable, Cloneable {
   }
 
   private void loadClass() {
-    m_class = ClassHelper.forName(m_name);
+    m_class = ClassHelper.forName(m_name, null);
 
     if (null == m_class) {
       throw new TestNGException("Cannot find class in classpath: " + m_name);

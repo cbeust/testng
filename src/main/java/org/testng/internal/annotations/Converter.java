@@ -15,6 +15,13 @@ import java.util.StringTokenizer;
  */
 public class Converter {
 
+  public Converter(){
+
+  }
+
+  public Converter(List<ClassLoader> classLoaders) {
+
+  }
   public static boolean  getBoolean(String tagValue, boolean def) {
     boolean result = def;
     if (tagValue != null) {
@@ -80,7 +87,7 @@ public class Converter {
   public static Class getClass(String namedParameter) {
     Class result = null;
     if (namedParameter != null) {
-      result = ClassHelper.forName(namedParameter);
+      result = ClassHelper.forName(namedParameter, null);
     }
 
     return result;

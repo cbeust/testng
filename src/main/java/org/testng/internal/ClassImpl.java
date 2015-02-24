@@ -149,7 +149,7 @@ public class ClassImpl implements IClass {
     Injector injector = suite.getParentInjector();
     if (injector == null) {
       if (m_hasParentModule) {
-        Class<?> parentModule = ClassHelper.forName(suite.getParentModule());
+        Class<?> parentModule = ClassHelper.forName(suite.getParentModule(), null);
         if (parentModule == null) {
           throw new TestNGException("Cannot load parent Guice module class: " + parentModule);
         }

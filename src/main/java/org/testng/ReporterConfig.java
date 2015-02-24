@@ -95,7 +95,7 @@ public class ReporterConfig {
    */
   public Object newReporterInstance() {
     Object result = null;
-    Class reporterClass = ClassHelper.forName(m_className);
+    Class reporterClass = ClassHelper.forName(m_className, null);
     if (reporterClass != null) {
       result = ClassHelper.newInstance(reporterClass);
       for (ReporterConfig.Property property : m_properties) {

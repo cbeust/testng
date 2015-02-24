@@ -14,6 +14,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +102,8 @@ import com.beust.jcommander.ParameterException;
  * @author <a href = "mailto:the_mindstorm&#64;evolva.ro">Alex Popescu</a>
  */
 public class TestNG {
-
+  /** This holds the classloaders associated with this instance of TestNG */
+  private final List<ClassLoader> classLoaders = Collections.synchronizedList(new ArrayList<ClassLoader>(2));
   /** This class' log4testng Logger. */
   private static final Logger LOGGER = Logger.getLogger(TestNG.class);
 
@@ -196,6 +198,13 @@ public class TestNG {
     init(true);
   }
 
+    public TestNG(final List<ClassLoader> classLoaders) {
+        init(true);
+
+        if(classLoaders != null) {
+            this.classLoaders.addAll(classLoaders);
+        }
+    }
   /**
    * Used by maven2 to have 0 output of any kind come out
    * of testng.
@@ -520,7 +529,7 @@ public class TestNG {
     //
     Set<Class> classes = Sets.newHashSet();
     for (String m : commandLineMethods) {
-      Class c = ClassHelper.forName(splitMethod(m)[0]);
+      Class c = ClassHelper.forName(splitMethod(m)[0], this.classLoaders);
       if (c != null) {
           classes.add(c);
       }
@@ -900,7 +909,7 @@ public class TestNG {
     //
     for (XmlSuite s : m_suites) {
       for (String listenerName : s.getListeners()) {
-        Class<?> listenerClass = ClassHelper.forName(listenerName);
+        Class<?> listenerClass = ClassHelper.forName(listenerName, this.classLoaders);
 
         // If specified listener does not exist, a TestNGException will be thrown
         if(listenerClass == null) {
@@ -1965,11 +1974,20 @@ public class TestNG {
     m_dataProviderThreadCount = count;
   }
 
-  /** Add a class loader to the searchable loaders. */
-  public void addClassLoader(final ClassLoader loader) {
+  /** Add a class loader to the searchable loaders. This is shared across all TestNG instances */
+  public static void addToGlobalClassLoaders(final ClassLoader loader) {
     if (loader != null) {
       ClassHelper.addClassLoader(loader);
     }
+  }
+
+  /** This classloader will be added to a List of ClassLoader associated with this instance only */
+  public void addToThisClassLoader(final ClassLoader loader) {
+     if (loader != null) {
+         this.classLoaders.add(loader);
+         this.addToGlobalClassLoaders(loader);
+     }
+
   }
 
   public void setPreserveOrder(boolean b) {
